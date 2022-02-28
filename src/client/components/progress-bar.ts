@@ -1,3 +1,4 @@
+import { TimerSseEvent } from "../../types.js";
 import { roomState } from "../room-state.js";
 
 const html = String.raw;
@@ -21,7 +22,7 @@ template.innerHTML = html`
   <div></div>
 `;
 export class TopProgressBar extends HTMLElement {
-  private lastTimer: { user: string; ends: string; starts: string } | undefined;
+  private lastTimer: TimerSseEvent | undefined;
 
   private interval: number | undefined;
 

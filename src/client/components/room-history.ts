@@ -1,4 +1,5 @@
 import debounce from "lodash/debounce.js";
+import { TimerSseEvent } from "../../types.js";
 import { roomState } from "../room-state.js";
 
 const html = String.raw;
@@ -14,7 +15,7 @@ template.innerHTML = html`
   <div></div>
 `;
 export class RoomHistory extends HTMLElement {
-  history: { user?: string; starts: string; ends: string; type: string }[] = [];
+  history: TimerSseEvent[] = [];
   historyEl: HTMLDivElement;
   constructor() {
     super();

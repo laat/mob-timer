@@ -1,3 +1,4 @@
+import { TimerSseEvent } from "../../types.js";
 import { roomState } from "../room-state.js";
 
 const html = String.raw;
@@ -21,8 +22,7 @@ template.innerHTML = html`
   </div>
 `;
 export class CurrentTimer extends HTMLElement {
-  private lastTimer: { user: string; type: string; ends: string } | undefined =
-    undefined;
+  private lastTimer: TimerSseEvent | undefined;
 
   private interval: number | undefined;
 
