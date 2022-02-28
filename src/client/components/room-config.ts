@@ -16,8 +16,8 @@ template.innerHTML = html`
       <label><input type="number" name="minutes" /> Minutes</label>
       <label
         ><input type="number" name="break-every" /> Break every
-        <span id="break-time"></span
-      ></label>
+        <span id="break-time"></span>′</label
+      >
       <label
         ><input type="number" name="break-minutes" /> Minutes per break</label
       >
@@ -31,6 +31,7 @@ export class RoomConfig extends HTMLElement {
   minutesEl: HTMLInputElement;
   breakMinutesEl: HTMLInputElement;
   breakEveryEl: HTMLInputElement;
+  breakTime: HTMLSpanElement;
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -39,6 +40,7 @@ export class RoomConfig extends HTMLElement {
     this.minutesEl = this.form.querySelector("input[name=minutes]")!;
     this.breakMinutesEl = this.form.querySelector("input[name=break-minutes]")!;
     this.breakEveryEl = this.form.querySelector("input[name=break-every]")!;
+    this.breakTime = this.shadowRoot!.querySelector("#break-time")!;
   }
   connectedCallback() {
     this.form.addEventListener("submit", this.onSubmit);
@@ -67,6 +69,9 @@ export class RoomConfig extends HTMLElement {
     this.minutesEl.value = this.config?.minutes?.toString() || "";
     this.breakEveryEl.value = this.config?.breakEvery?.toString() || "";
     this.breakMinutesEl.value = this.config?.breakMinutes?.toString() || "";
+    this.breakTime.innerText = String(
+      (this.config?.breakEvery ?? 3) * (this.config?.minutes ?? 10)
+    );
   }
 }
 
