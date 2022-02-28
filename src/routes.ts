@@ -108,7 +108,7 @@ const schema: JSONSchemaType<PutTimer> = {
         timer: { type: "integer" },
         user: { type: "string" },
       },
-      required: ["timer", "user"],
+      required: ["timer"],
     },
     {
       type: "object",
@@ -116,7 +116,7 @@ const schema: JSONSchemaType<PutTimer> = {
         breaktimer: { type: "integer" },
         user: { type: "string" },
       },
-      required: ["breaktimer", "user"],
+      required: ["breaktimer"],
     },
   ] as any,
 };
@@ -151,9 +151,15 @@ const putHandler = async (
     res.writeHead(400, { "content-type": "text/plain" });
     res.end(`${err.instancePath} ${err.message}`);
   } else {
-    await room.putTimer(data);
+    const text = await room.putTimer(data);
     res.writeHead(200, { "content-type": "text/plain" });
-    res.end();
+    if (text) {
+      res.write(`|\r\n`);
+      res.write(`| ${text}\r\n`);
+      res.end(`| \r\n`);
+    } else {
+      res.end();
+    }
   }
 };
 

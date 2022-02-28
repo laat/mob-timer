@@ -12,7 +12,7 @@ export interface PutTimerData {
 }
 export interface PutBreakTimerData {
   breaktimer: number;
-  user: string;
+  user?: string;
 }
 export type PutTimer = PutTimerData | PutBreakTimerData;
 
@@ -74,6 +74,25 @@ export class Room extends EventEmitter {
       id: randomUUID(),
       data: JSON.stringify(eventData),
     });
+
+    // calculate next break
+    const config = await this.getConfig();
+    const history = await this.buffer.getMessages(null);
+    const timers = history
+      .filter((e) => e.event === "timer")
+      .map((x) => JSON.parse(x.data))
+      .reverse();
+
+    const breakIndex = timers.findIndex((x) => x.type === "breakTimer");
+    const breakEvery = config.breakEvery ?? 3;
+    if (
+      timers.length > breakEvery &&
+      (breakIndex === -1 || breakIndex >= breakEvery)
+    ) {
+      return "take a break soon";
+    } else {
+      return undefined;
+    }
   }
 
   async getConfig() {
