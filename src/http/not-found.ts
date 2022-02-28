@@ -6,6 +6,6 @@ export const notFoundHandler = (
 ) => {
   if (res.headersSent) return;
   if (res.writableEnded) return;
-  res.writeHead(404);
+  res.writeHead(404, { "content-type": "text/plain" });
   res.end("Not Found");
 };

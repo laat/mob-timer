@@ -42,7 +42,7 @@ export class EventBufferMemory extends EventEmitter implements ISseBuffer {
     this.emit(SSE_EVENT, event);
   }
 
-  async getMessages(
+  async getEvents(
     lastEventId: string | string[] | undefined | null
   ): Promise<ISseEvent[]> {
     const history = Array.from(this.history.entries())

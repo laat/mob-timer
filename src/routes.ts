@@ -12,6 +12,8 @@ const ajv = new Ajv();
 
 const ROOM_PATH_RE = /^\/[A-Za-z0-9-]+\/?$/;
 const ROOM_CONFIG_PATH_RE = /^\/[A-Za-z0-9-]+\/config\/?$/;
+const pathMatches = (req: Http2ServerRequest, pattern: RegExp) =>
+  pattern.test(new URL(req.url, "http://example.com").pathname);
 
 const availableGetMimeTypes = ["text/html", "text/event-stream"];
 
@@ -29,7 +31,7 @@ const getRoomHtmlHandler = async (
   if (req.method !== "GET" && req.method !== "HEAD") return;
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/html") return;
-  if (!ROOM_PATH_RE.test(req.url)) return;
+  if (!pathMatches(req, ROOM_PATH_RE)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -61,7 +63,7 @@ const roomSseHandler = async (
   if (req.method !== "GET" && req.method !== "HEAD") return;
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/event-stream") return;
-  if (!ROOM_PATH_RE.test(req.url)) return;
+  if (!pathMatches(req, ROOM_PATH_RE)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -81,7 +83,7 @@ const roomSseHandler = async (
     message.event && res.write(`event: ${message.event}\n`);
     res.write(`data: ${message.data}\n\n`);
   };
-  const messages = await room.getSseMessages(req.headers["last-event-id"]);
+  const messages = await room.getEvents(req.headers["last-event-id"]);
   for (const replayMessage of messages) send(replayMessage);
 
   const keepAlive = setInterval(() => res.write(":keep-alive\n\n"), 15000);
@@ -133,7 +135,7 @@ const putHandler = async (
 ) => {
   if (req.method !== "PUT") return;
   if (req.headers["content-type"] !== "application/json") return;
-  if (!ROOM_PATH_RE.test(req.url)) return;
+  if (!pathMatches(req, ROOM_PATH_RE)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -187,7 +189,7 @@ const postConfig = async (
 ) => {
   if (req.method !== "POST") return;
   if (req.headers["content-type"] !== "application/json") return;
-  if (!ROOM_CONFIG_PATH_RE.test(req.url)) return;
+  if (!pathMatches(req, ROOM_CONFIG_PATH_RE)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -215,9 +217,9 @@ const postConfig = async (
  * ```
  */
 const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
-  if (req.method !== "GET") return;
+  if (req.method !== "GET" && req.method !== "HEAD") return;
   if (req.headers.accept !== "application/json") return;
-  if (!ROOM_CONFIG_PATH_RE.test(req.url)) return;
+  if (!pathMatches(req, ROOM_CONFIG_PATH_RE)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;

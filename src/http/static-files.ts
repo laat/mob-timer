@@ -11,39 +11,32 @@ export const createStaticHandler =
   async (req: Http2ServerRequest, res: Http2ServerResponse) => {
     if (res.headersSent) return;
     if (res.writableEnded) return;
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      return;
-    }
+    if (req.method !== "GET" && req.method !== "HEAD") return;
+
     const pathname = new URL(req.url, "http://example.com").pathname;
     const filePath = safeDecode(
       root,
       pathname === "/" ? "/index.html" : pathname
     );
 
-    if (filePath == null) {
-      return;
-    }
+    if (filePath == null) return;
 
     const stat = await tryStat(filePath);
-    if (stat?.isFile()) {
-      if (res.headersSent) return;
-      if (res.writableEnded) return;
+    if (!stat?.isFile()) return;
+    if (res.headersSent) return;
+    if (res.writableEnded) return;
 
-      const mimetype = mime.lookup(filePath);
-      res.writeHead(200, {
-        ...(mimetype ? { "content-type": mimetype } : {}),
-        "content-length": stat.size,
-      });
+    const mimetype = mime.lookup(filePath);
+    mimetype && res.setHeader("content-type", mimetype);
 
-      if (req.method === "HEAD") {
-        res.end();
-        return;
-      }
+    res.writeHead(200, { "content-length": stat.size });
 
-      var readStream = createReadStream(filePath);
-      readStream.pipe(res);
-      await finished(readStream);
-    }
+    if (req.method === "HEAD") return res.end();
+
+    var readStream = createReadStream(filePath);
+    readStream.pipe(res);
+
+    await finished(readStream);
   };
 
 const tryStat = async (path: string) => {
@@ -53,6 +46,7 @@ const tryStat = async (path: string) => {
     return null;
   }
 };
+
 const safeDecode = (root: string, pathname: string) => {
   if (pathname.includes("\0")) {
     return null;

@@ -21,7 +21,7 @@ export interface ISseBufferConfig {
 
 export interface ISseBuffer extends EventEmitter {
   publish(event: ISseEvent): Promise<void>;
-  getMessages(
+  getEvents(
     lastEventId: string | string[] | undefined | null
   ): Promise<ISseEvent[]>;
 }

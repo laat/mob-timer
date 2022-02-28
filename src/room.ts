@@ -64,7 +64,7 @@ export class Room extends EventEmitter {
 
   async isTakeABreak() {
     const config = await this.getConfig();
-    const history = await this.buffer.getMessages(null);
+    const history = await this.buffer.getEvents(null);
     const timers = history
       .filter((e) => e.event === "timer")
       .map((x) => JSON.parse(x.data))
@@ -111,8 +111,8 @@ export class Room extends EventEmitter {
     });
   }
 
-  async getSseMessages(lastEventId: string | string[] | undefined | null) {
-    return this.buffer.getMessages(lastEventId);
+  async getEvents(lastEventId: string | string[] | undefined | null) {
+    return this.buffer.getEvents(lastEventId);
   }
 
   close() {
