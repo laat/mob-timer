@@ -16,7 +16,7 @@ template.innerHTML = html`
   <h3>Usage</h3>
   <code>
     <pre>
-  export MOB_TIMER="<span class="timer"></span>"
+  export MOB_TIMER="<span class="timer">10</span>"
   export MOB_TIMER_URL=${window.origin}/
   export MOB_TIMER_ROOM=${window.location.pathname.substring(1)}
 
