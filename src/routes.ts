@@ -3,10 +3,14 @@ import { createReadStream } from "fs";
 import { stat } from "fs/promises";
 import { Http2ServerRequest, Http2ServerResponse } from "http2";
 import { ISseEvent, SSE_EVENT } from "./buffer/interface.js";
+import { readBodyString } from "./http/read-body-string.js";
 import { PutTimer, Room } from "./room.js";
 import { IRoomConfig } from "./types.js";
 
 const ajv = new Ajv();
+
+const ROOM_PATH_RE = /^\/[A-Za-z0-9-]+\/?$/;
+const ROOM_CONFIG_PATH_RE = /^\/[A-Za-z0-9-]+\/config\/?$/;
 
 const availableGetMimeTypes = ["text/html", "text/event-stream"];
 
@@ -25,9 +29,7 @@ const getRoomHtmlHandler = async (
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/html") return;
 
-  const pathname = new URL(req.url, "http://example.com").pathname;
-  const parts = pathname.split("/").filter(Boolean);
-  if (parts.length !== 1) return;
+  if (!ROOM_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -67,9 +69,7 @@ const roomSseHandler = async (
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/event-stream") return;
 
-  const pathname = new URL(req.url, "http://example.com").pathname;
-  const parts = pathname.split("/").filter(Boolean);
-  if (parts.length !== 1) return;
+  if (!ROOM_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -142,35 +142,31 @@ const putHandler = async (
 ) => {
   if (req.method !== "PUT") return;
   if (req.headers["content-type"] !== "application/json") return;
-
-  const pathname = new URL(req.url, "http://example.com").pathname;
-  const parts = pathname.split("/").filter(Boolean);
-  if (parts.length !== 1) return;
+  if (!ROOM_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
 
-  const buffers = [];
-  for await (const chunk of req) buffers.push(chunk);
-  const data = JSON.parse(Buffer.concat(buffers).toString());
+  const data = JSON.parse(await readBodyString(req));
 
   const valid = validatePut(data);
   if (!valid) {
     const err = validatePut.errors?.[0] as DefinedError;
     res.writeHead(400, { "content-type": "text/plain" });
     res.end(`${err.instancePath} ${err.message}`);
+    return;
+  }
+
+  const text = await room.putTimer(data);
+  res.writeHead(200, { "content-type": "text/plain" });
+  if (text) {
+    // cli prints this text
+    res.write(`|\n`);
+    res.write(`| ${text}\n`);
+    res.write(`|\n`);
+    res.end();
   } else {
-    const text = await room.putTimer(data);
-    res.writeHead(200, { "content-type": "text/plain" });
-    if (text) {
-      // cli prints this text
-      res.write(`|\n`);
-      res.write(`| ${text}\n`);
-      res.write(`|\n`);
-      res.end();
-    } else {
-      res.end();
-    }
+    res.end();
   }
 };
 
@@ -201,28 +197,24 @@ const postConfig = async (
   if (req.method !== "POST") return;
   if (req.headers["content-type"] !== "application/json") return;
 
-  const pathname = new URL(req.url, "https://example.com").pathname;
-  const parts = pathname.split("/").filter(Boolean);
-  if (parts.length !== 2) return;
-  if (parts[1] !== "config") return;
+  if (!ROOM_CONFIG_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
 
-  const buffers = [];
-  for await (const chunk of req) buffers.push(chunk);
-  const data = JSON.parse(Buffer.concat(buffers).toString());
+  const data = JSON.parse(await readBodyString(req));
 
   const valid = validateRoomConfig(data);
   if (!valid) {
     const err = validatePut.errors?.[0] as DefinedError;
     res.writeHead(400, { "content-type": "text/plain" });
     res.end(`${err.instancePath} ${err.message}`);
-  } else {
-    await room.setConfig(data);
-    res.writeHead(200, { "content-type": "text/plain" });
-    res.end();
+    return;
   }
+
+  await room.setConfig(data);
+  res.writeHead(200, { "content-type": "text/plain" });
+  res.end();
 };
 
 /**
@@ -236,10 +228,7 @@ const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
   if (req.method !== "GET") return;
   if (req.headers.accept !== "application/json") return;
 
-  const pathname = new URL(req.url, "https://example.com").pathname;
-  const parts = pathname.split("/").filter(Boolean);
-  if (parts.length !== 2) return;
-  if (parts[1] !== "config") return;
+  if (!ROOM_CONFIG_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
