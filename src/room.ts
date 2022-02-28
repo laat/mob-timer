@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 import { Http2ServerRequest } from "http2";
 import { EventBufferMemory } from "./buffer/event-buffer-memory.js";
 import { SSE_EVENT } from "./buffer/interface.js";
+import { TimerSseEvent } from "./types.js";
 
 const __DEV__ = process.env.NODE_ENV !== "production";
 export interface PutTimerData {
@@ -60,10 +61,11 @@ export class Room extends EventEmitter {
     const user = data.user;
     const starts = new Date();
     const ends = new Date(starts.getTime() + timer * 1000 * 60);
+    const eventData: TimerSseEvent = { type, user, ends, starts };
     this.buffer.publish({
       event: "timer",
       id: randomUUID(),
-      data: JSON.stringify({ type, user, ends, starts }),
+      data: JSON.stringify(eventData),
     });
   }
 
