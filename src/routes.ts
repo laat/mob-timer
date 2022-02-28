@@ -4,6 +4,7 @@ import { stat } from "fs/promises";
 import { Http2ServerRequest, Http2ServerResponse } from "http2";
 import { ISseEvent, SSE_EVENT } from "./buffer/interface.js";
 import { PutTimer, Room } from "./room.js";
+import { IRoomConfig } from "./types.js";
 
 const ajv = new Ajv();
 
@@ -100,7 +101,7 @@ const roomSseHandler = async (
   req.once("close", () => room.removeListener("close", close));
 };
 
-const schema: JSONSchemaType<PutTimer> = {
+const putSchema: JSONSchemaType<PutTimer> = {
   oneOf: [
     {
       type: "object",
@@ -120,7 +121,7 @@ const schema: JSONSchemaType<PutTimer> = {
     },
   ] as any,
 };
-const validatePut = ajv.compile(schema);
+const validatePut = ajv.compile(putSchema);
 
 /**
  * @example
@@ -163,6 +164,15 @@ const putHandler = async (
   }
 };
 
+const roomConfigSchema: JSONSchemaType<IRoomConfig> = {
+  type: "object",
+  properties: {
+    breakEvery: { type: "integer", nullable: true },
+    breakMinutes: { type: "integer", nullable: true },
+    minutes: { type: "integer", nullable: true },
+  },
+};
+const validateRoomConfig = ajv.compile(roomConfigSchema);
 /**
  * @example
  * ```http
@@ -190,10 +200,16 @@ const postConfig = async (
   for await (const chunk of req) buffers.push(chunk);
   const data = JSON.parse(Buffer.concat(buffers).toString());
 
-  await room.setConfig(data);
-
-  res.writeHead(200, { "content-type": "text/plain" });
-  res.end();
+  const valid = validateRoomConfig(data);
+  if (!valid) {
+    const err = validatePut.errors?.[0] as DefinedError;
+    res.writeHead(400, { "content-type": "text/plain" });
+    res.end(`${err.instancePath} ${err.message}`);
+  } else {
+    await room.setConfig(data);
+    res.writeHead(200, { "content-type": "text/plain" });
+    res.end();
+  }
 };
 
 /**
