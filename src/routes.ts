@@ -174,6 +174,7 @@ const roomConfigSchema: JSONSchemaType<Required<IRoomConfig>> = {
   required: ["minutes", "breakMinutes", "breakEvery"],
 };
 const validateRoomConfig = ajv.compile(roomConfigSchema);
+
 /**
  * @example
  * ```http
