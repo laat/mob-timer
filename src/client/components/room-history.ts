@@ -21,7 +21,7 @@ export class RoomHistory extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this.shadowRoot!.appendChild(template.content.cloneNode(true));
-    this.history = room.timers;
+    this.history = room.timers.slice();
     this.historyEl = this.shadowRoot!.querySelector("div")!;
   }
   onTimer = (event: CustomEvent) => {

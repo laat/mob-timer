@@ -41,7 +41,7 @@ class Room extends RoomStateTarget {
       this.dispatchEvent(new CustomEvent("timers", { detail: this._timers }));
     });
   }
-  get timers() {
+  get timers(): readonly TimerSseEvent[] {
     return this._timers.slice();
   }
   async putTimer(timer: number, user?: string) {
