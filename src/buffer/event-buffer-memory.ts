@@ -1,13 +1,18 @@
 import EventEmitter from "events";
-import { IBuffer, IBufferConfig, ISseEvent, SSE_EVENT } from "./interface.js";
+import {
+  ISseBuffer,
+  ISseBufferConfig,
+  ISseEvent,
+  SSE_EVENT,
+} from "./interface.js";
 
 interface IHistoricEvent {
   timestamp: number;
   event: ISseEvent;
 }
-export class EventBufferMemory extends EventEmitter implements IBuffer {
+export class EventBufferMemory extends EventEmitter implements ISseBuffer {
   constructor(
-    private replayConfig: IBufferConfig = {},
+    private replayConfig: ISseBufferConfig = {},
     private history = new Map<string, IHistoricEvent[]>()
   ) {
     super();

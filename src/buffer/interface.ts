@@ -14,12 +14,12 @@ type IEventBufferConfig =
       /** milliseconds */
       ttl: number;
     };
-export interface IBufferConfig {
+export interface ISseBufferConfig {
   default?: IEventBufferConfig;
   events?: { [event: string]: IEventBufferConfig };
 }
 
-export interface IBuffer extends EventEmitter {
+export interface ISseBuffer extends EventEmitter {
   publish(event: ISseEvent): Promise<void>;
   getMessages(
     lastEventId: string | string[] | undefined | null
