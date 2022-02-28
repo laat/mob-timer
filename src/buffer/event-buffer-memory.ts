@@ -7,13 +7,7 @@ interface IHistoricEvent {
 }
 export class EventBufferMemory extends EventEmitter implements IBuffer {
   constructor(
-    private replayConfig: IBufferConfig = {
-      events: {
-        timer: {
-          ttl: 1000 * 60 * 60 * 24, // 24 hours
-        },
-      },
-    },
+    private replayConfig: IBufferConfig = {},
     private history = new Map<string, IHistoricEvent[]>()
   ) {
     super();
