@@ -8,9 +8,11 @@ interface IHistoricEvent {
 export class EventBufferMemory extends EventEmitter implements IBuffer {
   constructor(
     private replayConfig: IBufferConfig = {
-      replay: 0,
-      ttl: 0,
-      events: {},
+      events: {
+        timer: {
+          ttl: 1000 * 60 * 60 * 24, // 24 hours
+        },
+      },
     },
     private history = new Map<string, IHistoricEvent[]>()
   ) {
@@ -21,21 +23,19 @@ export class EventBufferMemory extends EventEmitter implements IBuffer {
 
   async publish(event: ISseEvent): Promise<void> {
     const eventName = event.event || "__undefined__";
-    const cfg = this.replayConfig.events[eventName] ?? this.replayConfig;
+    const cfg =
+      this.replayConfig.events?.[eventName] ?? this.replayConfig.default;
 
-    const configuredStore = cfg.replay != null || cfg.ttl != null;
-
-    if (configuredStore) {
+    if (cfg != null) {
       let history = this.history.get(eventName) || [];
       history.push({ timestamp: Date.now(), event });
-
-      if (cfg.replay != null && history.length > cfg.replay) {
+      if ("size" in cfg && history.length > cfg.size) {
         history.shift();
-      }
-
-      const ttl = cfg.ttl;
-      if (ttl) {
-        history = history.filter((e) => Date.now() - e.timestamp < ttl);
+      } else if ("ttl" in cfg) {
+        const ttl = cfg.ttl;
+        if (ttl) {
+          history = history.filter((e) => Date.now() - e.timestamp < ttl);
+        }
       }
 
       this.history.set(eventName, history);
@@ -48,7 +48,8 @@ export class EventBufferMemory extends EventEmitter implements IBuffer {
   ): Promise<ISseEvent[]> {
     const history = Array.from(this.history.entries())
       .map(([k, history]) => {
-        const ttl = (this.replayConfig.events[k] ?? this.replayConfig).ttl;
+        const cfg = this.replayConfig.events?.[k] ?? this.replayConfig.default;
+        const ttl = cfg && "ttl" in cfg ? cfg?.ttl : undefined;
         return ttl
           ? history.filter((e) => Date.now() - e.timestamp < ttl)
           : history;

@@ -5,19 +5,18 @@ export interface ISseEvent {
   event?: string;
   data: string;
 }
-export interface IBufferConfig {
-  /** number of messages to keep */
-  replay?: number;
-  /** milliseconds */
-  ttl?: number;
-  events: {
-    [event: string]: {
+type IEventBufferConfig =
+  | {
       /** number of messages to keep */
-      replay?: number;
+      size: number;
+    }
+  | {
       /** milliseconds */
-      ttl?: number;
+      ttl: number;
     };
-  };
+export interface IBufferConfig {
+  default?: IEventBufferConfig;
+  events?: { [event: string]: IEventBufferConfig };
 }
 
 export interface IBuffer extends EventEmitter {

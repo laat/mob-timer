@@ -20,11 +20,9 @@ const defaultCreateBuffer = () =>
   new EventBufferMemory({
     events: {
       timer: {
-        replay: 10,
         ttl: 1000 * 60 * 60 * 24, // 24 hours
       },
     },
-    replay: 0,
   });
 
 export class Room extends EventEmitter {
