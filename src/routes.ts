@@ -29,7 +29,6 @@ const getRoomHtmlHandler = async (
   if (req.method !== "GET" && req.method !== "HEAD") return;
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/html") return;
-
   if (!ROOM_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
@@ -62,7 +61,6 @@ const roomSseHandler = async (
   if (req.method !== "GET" && req.method !== "HEAD") return;
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/event-stream") return;
-
   if (!ROOM_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
@@ -73,10 +71,9 @@ const roomSseHandler = async (
     "cache-control": "no-cache",
     ...(req.httpVersionMajor === 1 ? { connection: "keep-alive" } : {}),
   });
-  if (req.method === "HEAD") {
-    res.end();
-    return;
-  }
+
+  if (req.method === "HEAD") return res.end();
+
   res.write(`retry: 2000\n`);
 
   const send = (message: ISseEvent) => {
@@ -190,7 +187,6 @@ const postConfig = async (
 ) => {
   if (req.method !== "POST") return;
   if (req.headers["content-type"] !== "application/json") return;
-
   if (!ROOM_CONFIG_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
@@ -221,7 +217,6 @@ const postConfig = async (
 const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
   if (req.method !== "GET") return;
   if (req.headers.accept !== "application/json") return;
-
   if (!ROOM_CONFIG_PATH_RE.test(req.url)) return;
 
   const room = await Room.getOrCreate(req);
