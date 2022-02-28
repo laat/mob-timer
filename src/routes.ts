@@ -232,8 +232,8 @@ const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
   const room = await Room.getOrCreate(req);
   if (!room) return;
 
-  res.writeHead(200, { "content-type": "application/json" });
   const config = await room.getConfig();
+  res.writeHead(200, { "content-type": "application/json" });
   res.end(JSON.stringify(config));
 };
 
