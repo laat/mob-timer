@@ -3,6 +3,8 @@ import { stat } from "fs/promises";
 import { Http2ServerRequest, Http2ServerResponse } from "http2";
 import mime from "mime-types";
 import { join, normalize } from "path";
+import { finished } from "stream/promises";
+import { promisify } from "util";
 
 export const createStaticHandler =
   (root: string) =>
@@ -40,10 +42,7 @@ export const createStaticHandler =
 
       var readStream = createReadStream(filePath);
       readStream.pipe(res);
-      return new Promise<void>((resolve, reject) => {
-        readStream.on("error", (err) => reject(err));
-        readStream.on("end", () => resolve(undefined));
-      });
+      await finished(readStream);
     }
   };
 

@@ -1,5 +1,6 @@
 import Ajv, { DefinedError, JSONSchemaType } from "ajv";
 import { createReadStream } from "fs";
+import { finished } from "stream/promises";
 import { stat } from "fs/promises";
 import { Http2ServerRequest, Http2ServerResponse } from "http2";
 import { ISseEvent, SSE_EVENT } from "./buffer/interface.js";
@@ -36,22 +37,15 @@ const getRoomHtmlHandler = async (
 
   const roomHtml = "public/room.html";
   const { size } = await stat(roomHtml);
-  res.writeHead(200, {
-    "content-type": "text/html",
-    "content-length": size,
-  });
 
-  if (req.method === "HEAD") {
-    res.end();
-    return;
-  }
+  res.writeHead(200, { "content-type": "text/html", "content-length": size });
+
+  if (req.method === "HEAD") return res.end();
+
   var readStream = createReadStream(roomHtml);
   readStream.pipe(res);
 
-  return new Promise<void>((resolve, reject) => {
-    readStream.on("error", (err) => reject(err));
-    readStream.on("end", () => resolve(undefined));
-  });
+  await finished(readStream);
 };
 
 /**
