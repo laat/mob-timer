@@ -24,6 +24,10 @@ const getRoomHtmlHandler = async (
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/html") return;
 
+  const pathname = new URL(req.url, "http://example.com").pathname;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length !== 1) return;
+
   const room = await Room.getOrCreate(req);
   if (!room) return;
 
@@ -153,4 +157,49 @@ const putHandler = async (
   }
 };
 
-export const roomHandlers = [roomSseHandler, putHandler, getRoomHtmlHandler];
+const postConfig = async (
+  req: Http2ServerRequest,
+  res: Http2ServerResponse
+) => {
+  if (req.method !== "POST") return;
+  if (req.headers["content-type"] !== "application/json") return;
+  const pathname = new URL(req.url, "https://example.com").pathname;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length !== 2) return;
+  if (parts[1] !== "config") return;
+
+  const room = await Room.getOrCreate(req);
+  if (!room) return;
+
+  const buffers = [];
+  for await (const chunk of req) buffers.push(chunk);
+  const data = JSON.parse(Buffer.concat(buffers).toString());
+
+  await room.setConfig(data);
+
+  res.writeHead(200, { "content-type": "text/plain" });
+  res.end();
+};
+
+const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
+  if (req.method !== "GET") return;
+  if (req.headers.accept !== "application/json") return;
+  const pathname = new URL(req.url, "https://example.com").pathname;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length !== 2) return;
+  if (parts[1] !== "config") return;
+
+  const room = await Room.getOrCreate(req);
+  if (!room) return;
+  res.writeHead(200, { "content-type": "application/json" });
+  const config = await room.getConfig();
+  res.end(JSON.stringify(config));
+};
+
+export const roomHandlers = [
+  roomSseHandler,
+  putHandler,
+  getRoomHtmlHandler,
+  postConfig,
+  getConfig,
+];

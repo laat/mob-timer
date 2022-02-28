@@ -4,3 +4,9 @@ export type TimerSseEvent = {
   starts: string | Date;
   ends: string | Date;
 };
+
+export type IRoomConfig = {
+  minutes?: number;
+  breakMinutes?: number;
+  breakEvery?: number;
+};

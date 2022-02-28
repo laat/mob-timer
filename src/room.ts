@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import { Http2ServerRequest } from "http2";
 import { EventBufferMemory } from "./buffer/event-buffer-memory.js";
 import { SSE_EVENT } from "./buffer/interface.js";
-import { TimerSseEvent } from "./types.js";
+import { IRoomConfig, TimerSseEvent } from "./types.js";
 
 const __DEV__ = process.env.NODE_ENV !== "production";
 export interface PutTimerData {
@@ -22,6 +22,9 @@ const defaultCreateBuffer = () =>
       timer: {
         ttl: 1000 * 60 * 60 * 24, // 24 hours
       },
+      config: {
+        size: 1,
+      },
     },
   });
 
@@ -36,7 +39,8 @@ export class Room extends EventEmitter {
   ) {
     const pathname = new URL(req.url, "http://example.com").pathname;
     const parts = pathname.split("/").filter(Boolean);
-    if (parts.length !== 1) return;
+    if (parts.length === 0) return;
+
     const roomName = parts[0];
 
     const room = Room.rooms.get(roomName) ?? new Room(createBuffer());
@@ -47,7 +51,14 @@ export class Room extends EventEmitter {
     return room;
   }
 
-  constructor(private buffer: EventBufferMemory) {
+  constructor(
+    private buffer: EventBufferMemory,
+    private _config: IRoomConfig = {
+      minutes: 10,
+      breakMinutes: 5,
+      breakEvery: 3,
+    }
+  ) {
     super();
     this.buffer.on(SSE_EVENT, (event) => this.emit(SSE_EVENT, event));
     this.buffer.on("error", (err) => this.emit("error", err));
@@ -60,10 +71,22 @@ export class Room extends EventEmitter {
     const starts = new Date();
     const ends = new Date(starts.getTime() + timer * 1000 * 60);
     const eventData: TimerSseEvent = { type, user, ends, starts };
-    this.buffer.publish({
+    await this.buffer.publish({
       event: "timer",
       id: randomUUID(),
       data: JSON.stringify(eventData),
+    });
+  }
+  async getConfig() {
+    return this._config;
+  }
+
+  async setConfig(config: IRoomConfig) {
+    this._config = config;
+    await this.buffer.publish({
+      event: "config",
+      id: randomUUID(),
+      data: JSON.stringify(config),
     });
   }
 
