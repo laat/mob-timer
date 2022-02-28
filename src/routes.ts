@@ -184,6 +184,7 @@ const postConfig = async (
 const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
   if (req.method !== "GET") return;
   if (req.headers.accept !== "application/json") return;
+
   const pathname = new URL(req.url, "https://example.com").pathname;
   const parts = pathname.split("/").filter(Boolean);
   if (parts.length !== 2) return;
@@ -191,6 +192,7 @@ const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
+
   res.writeHead(200, { "content-type": "application/json" });
   const config = await room.getConfig();
   res.end(JSON.stringify(config));
