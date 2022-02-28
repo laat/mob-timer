@@ -73,7 +73,7 @@ export class Room extends EventEmitter {
     const breakIndex = timers.findIndex((x) => x.type === "breakTimer");
     const breakEvery = config.breakEvery ?? 3;
     return (
-      timers.length > breakEvery &&
+      timers.length >= breakEvery &&
       (breakIndex === -1 || breakIndex >= breakEvery)
     );
   }
