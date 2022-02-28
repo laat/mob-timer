@@ -1,4 +1,3 @@
-import debounce from "lodash/debounce.js";
 import { TimerSseEvent } from "../../types.js";
 import { room } from "../room-state.js";
 
@@ -35,7 +34,7 @@ export class RoomHistory extends HTMLElement {
   disconnectedCallback() {
     room.removeEventListener("timers", this.onTimer);
   }
-  render = debounce(() => {
+  render() {
     const rows = this.history
       .map((x) => {
         const duration = new Date(
@@ -60,7 +59,7 @@ export class RoomHistory extends HTMLElement {
       )
       .join("\n");
     this.historyEl.innerHTML = `<table>${rows}</table>`;
-  }, 100);
+  }
 }
 
 customElements.define("room-history", RoomHistory);
