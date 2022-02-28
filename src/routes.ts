@@ -163,7 +163,7 @@ const putHandler = async (
     const text = await room.putTimer(data);
     res.writeHead(200, { "content-type": "text/plain" });
     if (text) {
-      //
+      // cli prints this text
       res.write(`|\n`);
       res.write(`| ${text}\n`);
       res.write(`|\n`);
