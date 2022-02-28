@@ -10,6 +10,7 @@ template.innerHTML = html`
     }
     pre {
       color: darkred;
+      font-size: 12px;
     }
   </style>
   <h3>Usage</h3>

@@ -10,20 +10,18 @@ template.innerHTML = html`
       flex-direction: column;
     }
   </style>
-  <details>
-    <summary>Config</summary>
-    <form>
-      <label><input type="number" name="minutes" /> Minutes</label>
-      <label
-        ><input type="number" name="break-every" /> Break every
-        <span id="break-time"></span>′</label
-      >
-      <label
-        ><input type="number" name="break-minutes" /> Minutes per break</label
-      >
-      <button type="submit">Update</button>
-    </form>
-  </details>
+  <h3>Config</h3>
+  <form>
+    <label><input type="number" name="minutes" /> Minutes</label>
+    <label
+      ><input type="number" name="break-every" /> Break every
+      <span id="break-time"></span>′</label
+    >
+    <label
+      ><input type="number" name="break-minutes" /> Minutes per break</label
+    >
+    <button type="submit">Update</button>
+  </form>
 `;
 export class RoomConfig extends HTMLElement {
   form: HTMLFormElement;
