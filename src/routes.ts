@@ -74,6 +74,7 @@ const roomSseHandler = async (
   res.writeHead(200, {
     "content-type": "text/event-stream",
     "cache-control": "no-cache",
+    "x-accel-buffering": "no", // nginx
     ...(req.httpVersionMajor === 1 ? { connection: "keep-alive" } : {}),
   });
 
