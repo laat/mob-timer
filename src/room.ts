@@ -62,6 +62,22 @@ export class Room extends EventEmitter {
     this.buffer.on("error", (err) => this.emit("error", err));
   }
 
+  async isTakeABreak() {
+    const config = await this.getConfig();
+    const history = await this.buffer.getMessages(null);
+    const timers = history
+      .filter((e) => e.event === "timer")
+      .map((x) => JSON.parse(x.data))
+      .reverse();
+
+    const breakIndex = timers.findIndex((x) => x.type === "breakTimer");
+    const breakEvery = config.breakEvery ?? 3;
+    return (
+      timers.length > breakEvery &&
+      (breakIndex === -1 || breakIndex >= breakEvery)
+    );
+  }
+
   async putTimer(data: PutTimer) {
     const timer = "timer" in data ? data.timer : data.breaktimer;
     const type = "timer" in data ? "timer" : "breakTimer";
@@ -75,20 +91,7 @@ export class Room extends EventEmitter {
       data: JSON.stringify(eventData),
     });
 
-    // calculate next break
-    const config = await this.getConfig();
-    const history = await this.buffer.getMessages(null);
-    const timers = history
-      .filter((e) => e.event === "timer")
-      .map((x) => JSON.parse(x.data))
-      .reverse();
-
-    const breakIndex = timers.findIndex((x) => x.type === "breakTimer");
-    const breakEvery = config.breakEvery ?? 3;
-    if (
-      timers.length > breakEvery &&
-      (breakIndex === -1 || breakIndex >= breakEvery)
-    ) {
+    if (await this.isTakeABreak()) {
       return "take a break soon";
     } else {
       return undefined;
