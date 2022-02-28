@@ -9,7 +9,6 @@ import {
   Http2ServerRequest,
   Http2ServerResponse,
 } from "http2";
-import { contentNegotiator } from "./http/negotiator.js";
 import { notFoundHandler } from "./http/not-found.js";
 import { createStaticHandler } from "./http/static-files.js";
 import { roomHandlers } from "./routes.js";
@@ -19,7 +18,6 @@ type Handler =
   | ((req: Http2ServerRequest, res: Http2ServerResponse) => void);
 
 const handlers: Handler[] = [
-  contentNegotiator,
   createStaticHandler("public"),
   ...roomHandlers,
   notFoundHandler,

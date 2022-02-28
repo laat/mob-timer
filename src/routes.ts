@@ -7,6 +7,7 @@ import { ISseEvent, SSE_EVENT } from "./buffer/interface.js";
 import { readBodyString } from "./http/read-body-string.js";
 import { PutTimer, Room } from "./room.js";
 import { IRoomConfig } from "./types.js";
+import Negotiator from "negotiator";
 
 const ajv = new Ajv();
 
@@ -29,9 +30,10 @@ const getRoomHtmlHandler = async (
   res: Http2ServerResponse
 ) => {
   if (req.method !== "GET" && req.method !== "HEAD") return;
-  const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
-  if (mediaType !== "text/html") return;
   if (!pathMatches(req, ROOM_PATH_RE)) return;
+
+  const mediaType = new Negotiator(req).mediaType(availableGetMimeTypes);
+  if (mediaType !== "text/html") return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -61,9 +63,10 @@ const roomSseHandler = async (
   res: Http2ServerResponse
 ) => {
   if (req.method !== "GET" && req.method !== "HEAD") return;
-  const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
-  if (mediaType !== "text/event-stream") return;
   if (!pathMatches(req, ROOM_PATH_RE)) return;
+
+  const mediaType = new Negotiator(req).mediaType(availableGetMimeTypes);
+  if (mediaType !== "text/event-stream") return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -134,8 +137,8 @@ const putHandler = async (
   res: Http2ServerResponse
 ) => {
   if (req.method !== "PUT") return;
-  if (req.headers["content-type"] !== "application/json") return;
   if (!pathMatches(req, ROOM_PATH_RE)) return;
+  if (req.headers["content-type"] !== "application/json") return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
@@ -218,8 +221,8 @@ const postConfig = async (
  */
 const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
   if (req.method !== "GET" && req.method !== "HEAD") return;
-  if (req.headers.accept !== "application/json") return;
   if (!pathMatches(req, ROOM_CONFIG_PATH_RE)) return;
+  if (req.headers.accept !== "application/json") return;
 
   const room = await Room.getOrCreate(req);
   if (!room) return;
