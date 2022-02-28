@@ -1,5 +1,6 @@
 import { IRoomConfig } from "../../types.js";
 import { room } from "../room-state.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 const html = String.raw;
 const template = document.createElement("template");
@@ -67,8 +68,8 @@ export class RoomConfig extends HTMLElement {
     this.minutesEl.value = this.config?.minutes?.toString() || "";
     this.breakEveryEl.value = this.config?.breakEvery?.toString() || "";
     this.breakMinutesEl.value = this.config?.breakMinutes?.toString() || "";
-    this.breakTime.innerText = String(
-      (this.config?.breakEvery ?? 3) * (this.config?.minutes ?? 10)
+    this.breakTime.innerText = escapeHtml(
+      String((this.config?.breakEvery ?? 3) * (this.config?.minutes ?? 10))
     );
   }
 }

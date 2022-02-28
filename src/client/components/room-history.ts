@@ -1,5 +1,6 @@
 import { TimerSseEvent } from "../../types.js";
 import { room } from "../room-state.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 const html = String.raw;
 const template = document.createElement("template");
@@ -54,7 +55,7 @@ export class RoomHistory extends HTMLElement {
       .map(
         (x) =>
           `<tr><td>🕒 ${x.starts} ${x.duration}</td><td>${
-            x.user ? `👤 ${x.user}` : ""
+            x.user ? `👤 ${escapeHtml(x.user)}` : ""
           }</td></tr>`
       )
       .join("\n");

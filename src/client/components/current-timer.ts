@@ -1,5 +1,6 @@
 import { TimerSseEvent } from "../../types.js";
 import { room } from "../room-state.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 const html = String.raw;
 const template = document.createElement("template");
@@ -57,7 +58,7 @@ export class CurrentTimer extends HTMLElement {
         const seconds = String(time.getSeconds()).padStart(2, "0");
         this.timerEl.innerText = `${icon} ${minutes}:${seconds}`;
         this.userEl.innerHTML = this.lastTimer.user
-          ? `👤 ${this.lastTimer.user}`
+          ? `👤 ${escapeHtml(this.lastTimer.user)}`
           : "";
       }
     }
