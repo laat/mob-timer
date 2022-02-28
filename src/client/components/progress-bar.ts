@@ -1,5 +1,5 @@
 import { TimerSseEvent } from "../../types.js";
-import { roomState } from "../room-state.js";
+import { room } from "../room-state.js";
 
 const html = String.raw;
 const template = document.createElement("template");
@@ -62,13 +62,13 @@ export class TopProgressBar extends HTMLElement {
     }
   }
   connectedCallback() {
-    this.lastTimer = roomState.timers[roomState.timers.length - 1];
-    roomState.addEventListener("timers", this.onTimer as any);
+    this.lastTimer = room.timers[room.timers.length - 1];
+    room.addEventListener("timers", this.onTimer as any);
     this.interval = window.setInterval(() => this.render(), 200);
     this.render();
   }
   disconnectedCallback() {
-    roomState.removeEventListener("timers", this.onTimer as any);
+    room.removeEventListener("timers", this.onTimer as any);
     window.clearInterval(this.interval);
   }
 }

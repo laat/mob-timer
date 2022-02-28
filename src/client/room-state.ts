@@ -1,6 +1,29 @@
+import { TimerSseEvent } from "../types.js";
+
 export const source = new EventSource(location.pathname);
-class Room extends EventTarget {
-  private _timers: any[] = [];
+
+// https://dev.to/43081j/strongly-typed-event-emitters-using-eventtarget-in-typescript-3658
+interface StateEventMap {
+  timers: CustomEvent<TimerSseEvent[]>;
+}
+interface IRoomStateTarget extends EventTarget {
+  addEventListener<K extends keyof StateEventMap>(
+    type: K,
+    listener: (ev: StateEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: EventListenerOptions | boolean
+  ): void;
+}
+const RoomStateTarget = EventTarget as {
+  new (): IRoomStateTarget;
+  prototype: IRoomStateTarget;
+};
+class Room extends RoomStateTarget {
+  private _timers: TimerSseEvent[] = [];
   constructor() {
     super();
     source.addEventListener("timer", (e: any) => {
@@ -26,4 +49,4 @@ class Room extends EventTarget {
     });
   }
 }
-export const roomState = new Room();
+export const room = new Room();

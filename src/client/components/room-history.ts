@@ -1,6 +1,6 @@
 import debounce from "lodash/debounce.js";
 import { TimerSseEvent } from "../../types.js";
-import { roomState } from "../room-state.js";
+import { room } from "../room-state.js";
 
 const html = String.raw;
 const template = document.createElement("template");
@@ -21,7 +21,7 @@ export class RoomHistory extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this.shadowRoot!.appendChild(template.content.cloneNode(true));
-    this.history = roomState.timers;
+    this.history = room.timers;
     this.historyEl = this.shadowRoot!.querySelector("div")!;
   }
   onTimer = (event: CustomEvent) => {
@@ -29,11 +29,11 @@ export class RoomHistory extends HTMLElement {
     this.render();
   };
   connectedCallback() {
-    roomState.addEventListener("timers", this.onTimer as any);
+    room.addEventListener("timers", this.onTimer as any);
     this.render();
   }
   disconnectedCallback() {
-    roomState.removeEventListener("timers", this.onTimer as any);
+    room.removeEventListener("timers", this.onTimer as any);
   }
   render = debounce(() => {
     const rows = this.history
