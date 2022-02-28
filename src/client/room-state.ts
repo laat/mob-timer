@@ -17,6 +17,16 @@ interface IRoomStateTarget extends EventTarget {
     callback: EventListenerOrEventListenerObject | null,
     options?: EventListenerOptions | boolean
   ): void;
+  removeEventListener<K extends keyof StateEventMap>(
+    type: K,
+    listener: (ev: StateEventMap[K]) => void,
+    options?: boolean | AddEventListenerOptions
+  ): void;
+  removeEventListener(
+    type: string,
+    callback: EventListenerOrEventListenerObject | null,
+    options?: EventListenerOptions | boolean
+  ): void;
 }
 const RoomStateTarget = EventTarget as {
   new (): IRoomStateTarget;

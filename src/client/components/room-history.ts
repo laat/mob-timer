@@ -29,11 +29,11 @@ export class RoomHistory extends HTMLElement {
     this.render();
   };
   connectedCallback() {
-    room.addEventListener("timers", this.onTimer as any);
+    room.addEventListener("timers", this.onTimer);
     this.render();
   }
   disconnectedCallback() {
-    room.removeEventListener("timers", this.onTimer as any);
+    room.removeEventListener("timers", this.onTimer);
   }
   render = debounce(() => {
     const rows = this.history

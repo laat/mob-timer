@@ -64,12 +64,12 @@ export class CurrentTimer extends HTMLElement {
   }
   connectedCallback() {
     this.lastTimer = room.timers[room.timers.length - 1];
-    room.addEventListener("timers", this.onTimer as any);
+    room.addEventListener("timers", this.onTimer);
     this.interval = window.setInterval(() => this.render(), 500);
     this.render();
   }
   disconnectedCallback() {
-    room.removeEventListener("timers", this.onTimer as any);
+    room.removeEventListener("timers", this.onTimer);
     window.clearInterval(this.interval);
   }
 }
