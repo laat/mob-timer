@@ -51,7 +51,7 @@ export class TopProgressBar extends HTMLElement {
     const current = parseInt(this.barEl.style.width, 10);
     const next = Math.min(100, Math.floor(this.getPercent() * 100));
     this.barEl.style.width = `${next}%`;
-    if (current > next) {
+    if (current > next || isNaN(current) || (current === 0 && next === 100)) {
       this.barEl.style.transition = "width 0s";
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
