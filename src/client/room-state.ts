@@ -40,7 +40,7 @@ class Room extends RoomStateTarget {
     super();
     source.addEventListener("timer", (e: any) => {
       this._timers.push(JSON.parse(e.data));
-      if (this._timers.length > 20) {
+      if (this._timers.length > 10) {
         this._timers.shift();
       }
       this.dispatchEvent(new CustomEvent("timers", { detail: this._timers }));
