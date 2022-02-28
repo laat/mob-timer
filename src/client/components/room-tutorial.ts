@@ -19,7 +19,7 @@ template.innerHTML = html`
   export MOB_TIMER_URL=${window.origin}/
   export MOB_TIMER_ROOM=${window.location.pathname.substring(1)}
 
-  mob start <span class="timer">10</span>
+  mob start
   mob timer <span class="timer">10</span>
   mob break <span class="break-timer">5</span>
   </pre>
@@ -40,9 +40,8 @@ export class RoomTutorial extends HTMLElement {
       this.shadowRoot!.querySelectorAll(".break-timer")
     ) as HTMLSpanElement[];
   }
-  async connectedCallback() {
+  connectedCallback() {
     room.addEventListener("config", this.onConfig);
-    this.config = await room.getConfig();
     this.render();
   }
   disconnectedCallback() {

@@ -57,12 +57,6 @@ class Room extends RoomStateTarget {
       body: JSON.stringify(config),
     });
   }
-  async getConfig() {
-    const response = await fetch(`${location.pathname}/config`, {
-      headers: { accept: "application/json" },
-    });
-    return response.json();
-  }
   async putTimer(timer: number, user?: string) {
     await fetch(location.pathname, {
       method: "PUT",

@@ -19,12 +19,8 @@ export type PutTimer = PutTimerData | PutBreakTimerData;
 const defaultCreateBuffer = () =>
   new EventBufferMemory({
     events: {
-      timer: {
-        ttl: 1000 * 60 * 60 * 24, // 24 hours
-      },
-      config: {
-        size: 1,
-      },
+      timer: { ttl: 1000 * 60 * 60 * 24 }, // 24 hours
+      config: { size: 1 },
     },
   });
 
@@ -44,6 +40,14 @@ export class Room extends EventEmitter {
     const roomName = parts[0];
 
     const room = Room.rooms.get(roomName) ?? new Room(createBuffer());
+    if (!Room.rooms.has(roomName)) {
+      const defaultConfig: IRoomConfig = {
+        minutes: 10,
+        breakMinutes: 5,
+        breakEvery: 3,
+      };
+      await room.setConfig(defaultConfig);
+    }
     Room.rooms.set(roomName, room);
 
     !__DEV__ && room.setMaxListeners(Infinity);
@@ -51,14 +55,8 @@ export class Room extends EventEmitter {
     return room;
   }
 
-  constructor(
-    private buffer: EventBufferMemory,
-    private _config: IRoomConfig = {
-      minutes: 10,
-      breakMinutes: 5,
-      breakEvery: 3,
-    }
-  ) {
+  private _config: IRoomConfig = {};
+  constructor(private buffer: EventBufferMemory) {
     super();
     this.buffer.on(SSE_EVENT, (event) => this.emit(SSE_EVENT, event));
     this.buffer.on("error", (err) => this.emit("error", err));
@@ -77,6 +75,7 @@ export class Room extends EventEmitter {
       data: JSON.stringify(eventData),
     });
   }
+
   async getConfig() {
     return this._config;
   }

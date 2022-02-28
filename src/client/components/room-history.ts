@@ -12,7 +12,7 @@ template.innerHTML = html`
     }
   </style>
   <h3>History</h3>
-  <div></div>
+  <div><table></table></div>
 `;
 export class RoomHistory extends HTMLElement {
   history: TimerSseEvent[] = [];

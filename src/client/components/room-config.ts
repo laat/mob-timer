@@ -10,25 +10,24 @@ template.innerHTML = html`
       flex-direction: column;
     }
   </style>
-  <form>
-    <label><input type="number" name="minutes" /> Minutes</label>
-    <label
-      ><input type="number" name="break-every" /> Break every
-      <span id="break-time"></span
-    ></label>
-    <label
-      ><input type="number" name="break-minutes" /> Minutes per break</label
-    >
-    <button type="submit">Update</button>
-  </form>
+  <details>
+    <summary>Config</summary>
+    <form>
+      <label><input type="number" name="minutes" /> Minutes</label>
+      <label
+        ><input type="number" name="break-every" /> Break every
+        <span id="break-time"></span
+      ></label>
+      <label
+        ><input type="number" name="break-minutes" /> Minutes per break</label
+      >
+      <button type="submit">Update</button>
+    </form>
+  </details>
 `;
 export class RoomConfig extends HTMLElement {
   form: HTMLFormElement;
-  config: IRoomConfig = {
-    breakEvery: 5,
-    breakMinutes: 5,
-    minutes: 10,
-  };
+  config: IRoomConfig | undefined;
   minutesEl: HTMLInputElement;
   breakMinutesEl: HTMLInputElement;
   breakEveryEl: HTMLInputElement;
@@ -41,11 +40,9 @@ export class RoomConfig extends HTMLElement {
     this.breakMinutesEl = this.form.querySelector("input[name=break-minutes]")!;
     this.breakEveryEl = this.form.querySelector("input[name=break-every]")!;
   }
-  async connectedCallback() {
+  connectedCallback() {
     this.form.addEventListener("submit", this.onSubmit);
     room.addEventListener("config", this.onConfig);
-    this.config = await room.getConfig();
-    this.render();
   }
   disconnectedCallback() {
     this.form.removeEventListener("submit", this.onSubmit);
