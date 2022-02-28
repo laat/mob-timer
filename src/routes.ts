@@ -1,13 +1,13 @@
 import Ajv, { DefinedError, JSONSchemaType } from "ajv";
 import { createReadStream } from "fs";
-import { finished } from "stream/promises";
 import { stat } from "fs/promises";
 import { Http2ServerRequest, Http2ServerResponse } from "http2";
+import Negotiator from "negotiator";
+import { finished } from "stream/promises";
 import { ISseEvent, SSE_EVENT } from "./buffer/interface.js";
 import { readBodyString } from "./http/read-body-string.js";
 import { PutTimer, Room } from "./room.js";
 import { IRoomConfig } from "./types.js";
-import Negotiator from "negotiator";
 
 const ajv = new Ajv();
 

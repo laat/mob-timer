@@ -4,7 +4,6 @@ import { Http2ServerRequest, Http2ServerResponse } from "http2";
 import mime from "mime-types";
 import { join, normalize } from "path";
 import { finished } from "stream/promises";
-import { promisify } from "util";
 
 export const createStaticHandler =
   (root: string) =>
