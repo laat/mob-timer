@@ -40,7 +40,7 @@ export class RoomHistory extends HTMLElement {
         const duration = new Date(
           new Date(x.ends).getTime() - new Date(x.starts).getTime()
         );
-        const icon = x.type === "break" ? "☕️" : "⏲";
+        const icon = x.type === "breakTimer" ? "☕️" : "⏲";
         const minutes = String(duration.getMinutes()).padStart(2, "0");
         const seconds = String(duration.getSeconds()).padStart(2, "0");
         return {

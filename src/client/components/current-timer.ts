@@ -42,7 +42,7 @@ export class CurrentTimer extends HTMLElement {
   };
 
   render() {
-    const icon = this.lastTimer?.type === "break" ? "☕️" : "⏲";
+    const icon = this.lastTimer?.type === "breakTimer" ? "☕️" : "⏲";
     if (this.lastTimer == null) {
       this.timerEl.innerHTML = `${icon} 00:00`;
       this.userEl.innerHTML = "";
