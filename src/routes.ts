@@ -157,6 +157,15 @@ const putHandler = async (
   }
 };
 
+/**
+ * @example
+ * ```http
+ * POST /:room-name/config
+ * Content-Type: application/json
+ *
+ * { "minutes": 10, "breakMinutes": 5, "breakEvery": 3 }
+ * ```
+ */
 const postConfig = async (
   req: Http2ServerRequest,
   res: Http2ServerResponse
@@ -181,6 +190,13 @@ const postConfig = async (
   res.end();
 };
 
+/**
+ * @example
+ * ```http
+ * GET /:room-name/config
+ * Accept: application/json
+ * ```
+ */
 const getConfig = async (req: Http2ServerRequest, res: Http2ServerResponse) => {
   if (req.method !== "GET") return;
   if (req.headers.accept !== "application/json") return;
