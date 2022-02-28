@@ -67,6 +67,10 @@ const roomSseHandler = async (
   const mediaType = req.negotiator.mediaType(availableGetMimeTypes);
   if (mediaType !== "text/event-stream") return;
 
+  const pathname = new URL(req.url, "http://example.com").pathname;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length !== 1) return;
+
   const room = await Room.getOrCreate(req);
   if (!room) return;
 
@@ -139,6 +143,10 @@ const putHandler = async (
   if (req.method !== "PUT") return;
   if (req.headers["content-type"] !== "application/json") return;
 
+  const pathname = new URL(req.url, "http://example.com").pathname;
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length !== 1) return;
+
   const room = await Room.getOrCreate(req);
   if (!room) return;
 
@@ -190,6 +198,7 @@ const postConfig = async (
 ) => {
   if (req.method !== "POST") return;
   if (req.headers["content-type"] !== "application/json") return;
+
   const pathname = new URL(req.url, "https://example.com").pathname;
   const parts = pathname.split("/").filter(Boolean);
   if (parts.length !== 2) return;
