@@ -164,13 +164,14 @@ const putHandler = async (
   }
 };
 
-const roomConfigSchema: JSONSchemaType<IRoomConfig> = {
+const roomConfigSchema: JSONSchemaType<Required<IRoomConfig>> = {
   type: "object",
   properties: {
-    breakEvery: { type: "integer", nullable: true },
-    breakMinutes: { type: "integer", nullable: true },
-    minutes: { type: "integer", nullable: true },
+    breakEvery: { type: "integer" },
+    breakMinutes: { type: "integer" },
+    minutes: { type: "integer" },
   },
+  required: ["minutes", "breakMinutes", "breakEvery"],
 };
 const validateRoomConfig = ajv.compile(roomConfigSchema);
 /**
